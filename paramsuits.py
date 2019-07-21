@@ -83,7 +83,7 @@ def get_cli_parser():
     Global client input parser
     '''
     parsers = {}
-    parsers['super'] = argparse.ArgumentParser(description = "Tool to manage credentials in AWS SSM parameter store")
+    parsers['super'] = argparse.ArgumentParser(description = "Tool to manage parameters in AWS SSM parameter store")
 
     parsers['super'].add_argument('-r', '--region', 
         help = 'the AWS region in which the parameter store resides. '
@@ -115,7 +115,7 @@ def get_cli_parser():
     parsers[action].add_argument('-showPath', '--show-path', dest = 'show_path', action = 'store_true',
         help = 'Display parameter name with path')
     parsers[action].add_argument('-prefix', '--prefix', default = None,
-        help = 'Filter parameter name with given prefix, parameter path is considered as prefix')
+        help = 'Filter parameter name with given prefix, parameter path is not considered as prefix')
 
     parsers[action].set_defaults(action = action)
 
@@ -153,7 +153,7 @@ def get_cli_parser():
     action = 'put'
     parsers[action] = subparsers.add_parser(action,
         help = 'Put a parameter into parameter store. '
-            'Policy is not supported in this version'
+            'Policy is not supported in current version'
     )
     parsers[action].add_argument('param_name', type = str, help = 'Parameter name to put')
     parsers[action].add_argument('param_value', type = str, nargs = '+',    
@@ -324,7 +324,7 @@ def update_parameter_value(region, param_name, param_value, param_type, key_id =
         client.put_parameter(**method_args)
         return True
     except ClientError as e:
-        print('Failed to upsert parameter ' + param_name + ':' + e.message)
+        print('Failed to upsert parameter ' + param_name + ':' + e.response.get('Error', 'Unknown'))
         return False
 
 def update_parameter_tag(region, name, tags, **session_params):
